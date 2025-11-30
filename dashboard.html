@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotManager SaaS - Panel de Control</title>
+    <!-- Tailwind CSS (Diseño) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconos Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR (Menú Lateral) -->
+    <aside class="w-64 bg-slate-900 text-white flex-col hidden md:flex">
+        <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+            <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center font-bold">H</div>
+            <span class="font-bold text-xl">HotManager</span>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-indigo-600 rounded-lg text-white">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition">
+                <i data-lucide="users" class="w-5 h-5"></i> CRM & Leads
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition">
+                <i data-lucide="settings" class="w-5 h-5"></i> Configuración
+            </a>
+        </nav>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+        
+        <!-- HEADER -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shadow-sm z-10">
+            <h2 class="text-lg font-bold text-slate-700">Resumen en Tiempo Real</h2>
+            <div class="flex items-center gap-4">
+                <div class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    Conectado a Python
+                </div>
+                <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-xs">AU</div>
+            </div>
+        </header>
+
+        <!-- AREA DE DATOS (Scrollable) -->
+        <div class="flex-1 overflow-auto p-8">
+            
+            <!-- TARJETAS DE MÉTRICAS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Ventas -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium">Ventas Totales</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1" id="total-sales">$0.00</h3>
+                    </div>
+                    <div class="p-3 bg-indigo-100 text-indigo-600 rounded-full">
+                        <i data-lucide="dollar-sign"></i>
+                    </div>
+                </div>
+                <!-- Leads -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium">Transacciones</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1" id="total-tx">0</h3>
+                    </div>
+                    <div class="p-3 bg-blue-100 text-blue-600 rounded-full">
+                        <i data-lucide="shopping-cart"></i>
+                    </div>
+                </div>
+                <!-- Recuperación -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium">Abandonos</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1" id="total-abandon">0</h3>
+                    </div>
+                    <div class="p-3 bg-orange-100 text-orange-600 rounded-full">
+                        <i data-lucide="alert-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLA DE VENTAS -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 class="font-bold text-slate-700">Últimas Transacciones</h3>
+                    <button onclick="fetchData()" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Actualizar ahora
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                            <tr>
+                                <th class="px-6 py-3 font-medium">Cliente</th>
+                                <th class="px-6 py-3 font-medium">Producto</th>
+                                <th class="px-6 py-3 font-medium">Estado</th>
+                                <th class="px-6 py-3 font-medium">Valor</th>
+                                <th class="px-6 py-3 font-medium text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- AQUÍ SE INYECTAN LOS DATOS DE PYTHON -->
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-slate-400">
+                                    Esperando datos del servidor...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- SCRIPT DE CONEXIÓN CON PYTHON -->
+    <script>
+        // Inicializar iconos
+        lucide.createIcons();
+
+        // CAMBIO IMPORTANTE: Usamos ruta relativa para que funcione en la nube y en local
+        const API_URL = "/api/leads";
+
+        // --- LÓGICA DE WHATSAPP AUTOMÁTICO ---
+        function sendWhatsApp(phone, name, type, product) {
+            let targetPhone = phone;
+            if (!targetPhone || targetPhone === 'undefined' || targetPhone === 'null') {
+                const rawInput = prompt(`⚠️ El sistema no tiene el número de ${name} guardado.\n\nPor favor, ingresa el número con Código de País (ej: 521 para México, 549 para Arg):`);
+                if (!rawInput) return;
+                targetPhone = rawInput;
+            }
+            targetPhone = targetPhone.replace(/\D/g, ''); 
+
+            let message = "";
+            const safeProduct = product || "el producto";
+            
+            if (type === 'SALE') {
+                message = `Hola ${name} 👋, ¡muchas felicidades por adquirir ${safeProduct}! 🚀\n\n¿Ya pudiste acceder al contenido correctamente? Estoy aquí para ayudarte.`;
+            } else if (type === 'ABANDONMENT') {
+                message = `Hola ${name} 👋, vi que estabas interesad@ en ${safeProduct} pero no completaste la inscripción.\n\n¿Tuviste algún problema con el método de pago? Avísame y te ayudo a resolverlo.`;
+            } else {
+                message = `Hola ${name}, te contacto desde soporte respecto a ${safeProduct}.`;
+            }
+
+            const url = `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
+            const win = window.open(url, '_blank');
+            if (!win) alert("⚠️ El navegador bloqueó la ventana. Por favor permite los pop-ups.");
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                renderTable(data);
+                updateStats(data);
+            } catch (error) {
+                console.error("Error conectando:", error);
+                document.getElementById('table-body').innerHTML = `
+                    <tr><td colspan="5" class="px-6 py-4 text-center text-red-500 font-medium bg-red-50">
+                        ⚠️ No se pudo conectar con el servidor.
+                    </td></tr>`;
+            }
+        }
+
+        function updateStats(data) {
+            const sales = data.filter(i => i.type === 'SALE');
+            const abandons = data.filter(i => i.type === 'ABANDONMENT');
+            const totalValue = sales.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+
+            document.getElementById('total-sales').innerText = `$${totalValue.toFixed(2)}`;
+            document.getElementById('total-tx').innerText = data.length;
+            document.getElementById('total-abandon').innerText = abandons.length;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = ''; 
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Aún no hay ventas registradas. ¡Haz una prueba en Hotmart!</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const safeName = item.name || "Desconocido"; 
+                const safeEmail = item.email || "Sin email";
+                const safeProduct = item.product || "Producto General";
+                const safePhone = item.phone; 
+
+                let statusBadge = '';
+                if (item.type === 'SALE') {
+                    statusBadge = `<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold flex w-fit items-center gap-1">✅ Aprobado</span>`;
+                } else if (item.type === 'ABANDONMENT') {
+                    statusBadge = `<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold flex w-fit items-center gap-1">🛒 Abandono</span>`;
+                } else {
+                    statusBadge = `<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold flex w-fit items-center gap-1">❌ Cancelado</span>`;
+                }
+
+                const row = `
+                    <tr class="hover:bg-slate-50 transition fade-in">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs">
+                                    ${safeName.substring(0,2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div class="font-medium text-slate-900">${safeName}</div>
+                                    <div class="text-xs text-slate-500">${safeEmail}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-600">${safeProduct}</td>
+                        <td class="px-6 py-4">${statusBadge}</td>
+                        <td class="px-6 py-4 font-bold text-slate-700">${item.price ? '$' + item.price : '-'}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button 
+                                onclick="sendWhatsApp('${safePhone}', '${safeName}', '${item.type}', '${safeProduct}')"
+                                class="text-indigo-600 hover:bg-green-50 hover:text-green-600 p-2 rounded-lg transition border border-transparent hover:border-green-200" 
+                                title="Enviar WhatsApp">
+                                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+            lucide.createIcons();
+        }
+
+        fetchData();
+        setInterval(fetchData, 10000);
+    </script>
+</body>
+</html>
